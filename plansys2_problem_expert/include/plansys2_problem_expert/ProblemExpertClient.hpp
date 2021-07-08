@@ -78,6 +78,28 @@ public:
   std::string getProblem();
   bool addProblem(const std::string & problem_str);
 
+  template<typename ServiceT>
+  std::optional<std::shared_ptr<typename ServiceT::Response>>
+  serviceCallHelper( typename rclcpp::Client<ServiceT>::SharedPtr service_client,
+                     std::shared_ptr<typename ServiceT::Request> request )
+  {
+     while (! service_client->wait_for_service(std::chrono::seconds(5)))
+     {
+       if (!rclcpp::ok())
+         return std::nullopt ;
+
+       RCLCPP_ERROR_STREAM( node_->get_logger(), service_client->get_service_name()
+                           << " service  client: waiting for service to appear...");
+     }
+     auto future_result = service_client->async_send_request(request);
+
+    if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1))
+        != rclcpp::FutureReturnCode::SUCCESS)
+    return std::nullopt;
+
+    return future_result.get();
+  }
+
 private:
   rclcpp::Client<plansys2_msgs::srv::AddProblem>::SharedPtr
     add_problem_client_;
