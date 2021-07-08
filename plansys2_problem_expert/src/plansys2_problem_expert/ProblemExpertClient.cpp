@@ -605,71 +605,52 @@ ProblemExpertClient::getFunction(const std::string & function)
 plansys2::Goal
 ProblemExpertClient::getGoal()
 {
-  plansys2_msgs::msg::Tree ret;
+  using srv_t = plansys2_msgs::srv::GetProblemGoal;
+  auto service_client = get_problem_goal_client_;
 
-  while (!get_problem_goal_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return ret;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      get_problem_goal_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
 
-  auto request = std::make_shared<plansys2_msgs::srv::GetProblemGoal::Request>();
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  auto future_result = get_problem_goal_client_->async_send_request(request);
-
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
-    return ret;
-  }
-
-  if (future_result.get()->success) {
-    return future_result.get()->tree;
+  //Process response
+  if (! optional_response )
+    return plansys2_msgs::msg::Tree();
+  if (optional_response.value()->success) {
+    return optional_response.value()->tree;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      get_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
+    return  plansys2_msgs::msg::Tree();
   }
-
-  return ret;
 }
 
 bool
 ProblemExpertClient::setGoal(const plansys2::Goal & goal)
 {
-  while (!add_problem_goal_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return false;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      add_problem_goal_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  using srv_t = plansys2_msgs::srv::AddProblemGoal;
+  auto service_client = add_problem_goal_client_;
 
-  auto request = std::make_shared<plansys2_msgs::srv::AddProblemGoal::Request>();
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
   request->tree = goal;
 
-  auto future_result = add_problem_goal_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return false;
-  }
-
-  if (future_result.get()->success) {
+  if (optional_response.value()->success) {
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      add_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return false;
   }
 }
@@ -677,34 +658,25 @@ ProblemExpertClient::setGoal(const plansys2::Goal & goal)
 bool
 ProblemExpertClient::isGoalSatisfied(const plansys2::Goal & goal)
 {
-  while (!is_problem_goal_satisfied_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return false;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      is_problem_goal_satisfied_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
-
-  auto request = std::make_shared<plansys2_msgs::srv::IsProblemGoalSatisfied::Request>();
+  using srv_t = plansys2_msgs::srv::IsProblemGoalSatisfied;
+  auto service_client = is_problem_goal_satisfied_client_;
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
   request->tree = goal;
 
-  auto future_result = is_problem_goal_satisfied_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return false;
-  }
-
-  if (future_result.get()->success) {
-    return future_result.get()->satisfied;
+  if (optional_response.value()->success) {
+    return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      is_problem_goal_satisfied_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return false;
   }
 }
@@ -712,33 +684,25 @@ ProblemExpertClient::isGoalSatisfied(const plansys2::Goal & goal)
 bool
 ProblemExpertClient::clearGoal()
 {
-  while (!remove_problem_goal_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return false;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      remove_problem_goal_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  using srv_t = plansys2_msgs::srv::RemoveProblemGoal;
+  auto service_client = remove_problem_goal_client_;
 
-  auto request = std::make_shared<plansys2_msgs::srv::RemoveProblemGoal::Request>();
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
 
-  auto future_result = remove_problem_goal_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return false;
-  }
-
-  if (future_result.get()->success) {
+  if (optional_response.value()->success) {
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      remove_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return false;
   }
 }
@@ -746,33 +710,25 @@ ProblemExpertClient::clearGoal()
 bool
 ProblemExpertClient::clearKnowledge()
 {
-  while (!clear_problem_knowledge_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return false;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      clear_problem_knowledge_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  using srv_t = plansys2_msgs::srv::ClearProblemKnowledge;
+  auto service_client = clear_problem_knowledge_client_;
 
-  auto request = std::make_shared<plansys2_msgs::srv::ClearProblemKnowledge::Request>();
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
 
-  auto future_result = clear_problem_knowledge_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return false;
-  }
-
-  if (future_result.get()->success) {
+  if (optional_response.value()->success) {
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      clear_problem_knowledge_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return false;
   }
 }
@@ -781,33 +737,25 @@ ProblemExpertClient::clearKnowledge()
 std::string
 ProblemExpertClient::getProblem()
 {
-  while (!get_problem_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return {};
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      get_problem_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  using srv_t = plansys2_msgs::srv::GetProblem;
+  auto service_client = get_problem_client_;
 
-  auto request = std::make_shared<plansys2_msgs::srv::GetProblem::Request>();
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
 
-  auto future_result = get_problem_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return {};
-  }
-
-  if (future_result.get()->success) {
-    return future_result.get()->problem;
+  if (optional_response.value()->success) {
+    return optional_response.value()->problem;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      get_problem_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return {};
   }
 }
@@ -815,34 +763,26 @@ ProblemExpertClient::getProblem()
 bool
 ProblemExpertClient::addProblem(const std::string & problem_str)
 {
-  while (!add_problem_client_->wait_for_service(std::chrono::seconds(5))) {
-    if (!rclcpp::ok()) {
-      return false;
-    }
-    RCLCPP_ERROR_STREAM(
-      node_->get_logger(),
-      add_problem_client_->get_service_name() <<
-        " service  client: waiting for service to appear...");
-  }
+  using srv_t = plansys2_msgs::srv::AddProblem;
+  auto service_client = add_problem_client_;
 
-  auto request = std::make_shared<plansys2_msgs::srv::AddProblem::Request>();
+  //Create the requeste
+  auto request = std::make_shared<srv_t::Request>();
   request->problem = problem_str;
 
-  auto future_result = add_problem_client_->async_send_request(request);
+  //Send the request
+  auto optional_response = serviceCallHelper<srv_t>(service_client,request);
 
-  if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  //Process response
+  if (! optional_response )
     return false;
-  }
-
-  if (future_result.get()->success) {
+  if (optional_response.value()->success) {
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
-      add_problem_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+      service_client->get_service_name() << ": " <<
+        optional_response.value()->error_info);
     return false;
   }
 }
