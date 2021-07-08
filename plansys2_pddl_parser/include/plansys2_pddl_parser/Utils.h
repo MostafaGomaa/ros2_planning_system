@@ -21,6 +21,8 @@
 #include "plansys2_msgs/msg/param.hpp"
 #include "plansys2_msgs/msg/tree.hpp"
 
+#include <functional>
+
 namespace parser
 {
 namespace pddl

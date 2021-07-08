@@ -717,6 +717,7 @@ Terminal::execute_plan()
     return;
   }
 
+ try{
   while (rclcpp::ok() && executor_client_->execute_and_check_plan()) {
     auto feedback = executor_client_->getFeedBack();
 
@@ -754,6 +755,10 @@ Terminal::execute_plan()
 
     rclcpp::spin_some(this->get_node_base_interface());
     loop_rate.sleep();
+  }
+ }
+  catch(...){
+	  std::cout << "I cough the place " << std::endl;
   }
 
   std::cout << std::endl;
