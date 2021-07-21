@@ -695,6 +695,18 @@ ProblemExpert::addProblem(const std::string & problem_str)
   std::cout << "Parsed problem: " << problem << std::endl;
 
   for (unsigned i = 0; i < domain.types.size(); ++i) {
+    if (domain.types[i]->constants.size() ) {
+      for (unsigned j = 0; j < domain.types[i]->constants.size(); ++j) {
+        plansys2::Instance instance;
+        instance.name = domain.types[i]->constants[j];
+        instance.type = domain.types[i]->name;
+        std::cout << "Adding constant: " << instance.name << " " << instance.type << std::endl;
+        addInstance(instance);
+      }
+    }
+  }
+
+  for (unsigned i = 0; i < domain.types.size(); ++i) {
     if (domain.types[i]->objects.size() ) {
       for (unsigned j = 0; j < domain.types[i]->objects.size(); ++j) {
         plansys2::Instance instance;
