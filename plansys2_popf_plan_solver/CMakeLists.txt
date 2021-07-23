@@ -22,10 +22,14 @@ set(dependencies
 include_directories(
   include
 )
-
 add_library(${PROJECT_NAME} SHARED
   src/plansys2_popf_plan_solver/popf_plan_solver.cpp
 )
+
+target_link_libraries(${PROJECT_NAME}
+    stdc++fs
+)
+
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
