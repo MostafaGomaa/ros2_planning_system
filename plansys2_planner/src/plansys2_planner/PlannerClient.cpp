@@ -32,7 +32,8 @@ PlannerClient::PlannerClient()
 
 std::optional<plansys2_msgs::msg::Plan>
 PlannerClient::getPlan(
-  const std::string & domain, const std::string & problem,
+  const std::string & domain,
+  const std::string & problem,
   const std::string & node_namespace)
 {
   while (!get_plan_client_->wait_for_service(std::chrono::seconds(30))) {
