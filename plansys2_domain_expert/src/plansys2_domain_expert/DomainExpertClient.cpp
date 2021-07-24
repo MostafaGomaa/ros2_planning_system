@@ -344,6 +344,10 @@ DomainExpertClient::getDurativeAction(
 
   auto future_result = get_durative_action_details_client_->async_send_request(request);
 
+  // TODO(MGomaa) The Durative actions are requiested one by one and the time out if one is delayed
+  // affects the quality of the code dramatically. The executor wont be able to execute
+  // Maybe increase the time out and send the whole action_detail list at once for the entier plan
+
   if (rclcpp::spin_until_future_complete(node_, future_result, std::chrono::seconds(1)) !=
     rclcpp::FutureReturnCode::SUCCESS)
   {

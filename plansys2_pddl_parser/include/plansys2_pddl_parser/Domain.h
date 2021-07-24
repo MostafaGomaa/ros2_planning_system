@@ -18,7 +18,7 @@
   #include "plansys2_pddl_parser/EitherType.h"
   #include "plansys2_pddl_parser/When.h"
 
-#define DOMAIN_DEBUG false
+#define DOMAIN_DEBUG true
 
 namespace parser { namespace pddl {
 
