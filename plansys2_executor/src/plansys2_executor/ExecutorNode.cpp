@@ -326,7 +326,7 @@ ExecutorNode::execute(const std::shared_ptr<GoalHandleExecutePlan> goal_handle)
       domain_client_->getDurativeAction(
       get_action_name(plan_item.action), get_action_params(plan_item.action));
 
-    if((*action_map)[index].durative_action_info == nullptr) {
+    if ((*action_map)[index].durative_action_info == nullptr) {
       RCLCPP_ERROR_STREAM(
         get_logger(), " The domain expert client failed to retrive the durtive action info.. ");
       RCLCPP_ERROR_STREAM(get_logger(), " Could not Execute plan. ");
