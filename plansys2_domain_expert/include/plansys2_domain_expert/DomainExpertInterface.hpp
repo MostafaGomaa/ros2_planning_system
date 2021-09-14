@@ -55,8 +55,8 @@ public:
    * \return A Predicate object containing the predicate name and its parameters (name and type).
    *    If the predicate does not exist, the value returned has not value.
    */
-  virtual std::optional<plansys2::Predicate> getPredicate(const std::string & predicate)
-  = 0;
+  virtual std::optional<plansys2::Predicate> getPredicate(const std::string & predicate) =
+    0;
 
   /// Get the functions existing in the domain.
   /**
@@ -71,7 +71,7 @@ public:
    *    If the function does not exist, the value returned has not value.
    */
   virtual std::optional<plansys2::Function> getFunction(const std::string & function) =
-  0;
+    0;
 
   /// Get the regular actions existing in the domain.
   /**
@@ -87,7 +87,7 @@ public:
    */
   virtual plansys2_msgs::msg::Action::SharedPtr getAction(
     const std::string & action, const std::vector<std::string> & params) =
-  0;
+    0;
 
   /// Get the temporal actions existing in the domain.
   /**
@@ -103,7 +103,7 @@ public:
    */
   virtual plansys2_msgs::msg::DurativeAction::SharedPtr getDurativeAction(
     const std::string & durative_action, const std::vector<std::string> & params) =
-  0;
+    0;
 
   /// Get the current domain, ready to be saved to file, or to initialize another domain.
   /**
