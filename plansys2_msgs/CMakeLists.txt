@@ -30,6 +30,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetDomainActionDetails.srv"
   "srv/GetDomainDurativeActionDetails.srv"
   "srv/GetDomainTypes.srv"
+  "srv/GetDomainConstants.srv"
   "srv/GetNodeDetails.srv"
   "srv/GetPlan.srv"
   "srv/GetOrderedSubGoals.srv"
