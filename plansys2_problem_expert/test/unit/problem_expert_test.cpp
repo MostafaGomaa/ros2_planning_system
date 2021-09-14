@@ -637,7 +637,6 @@ TEST(problem_expert, add_problem)
     problem_expert.getProblem(),
     std::string("( define ( problem problem_1 )\n( :domain plansys2 )\n") +
     std::string("( :objects\n)\n( :init\n)\n( :goal\n\t( and\n\t)\n)\n)\n"));
-
 }
 
 
