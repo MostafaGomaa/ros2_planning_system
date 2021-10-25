@@ -74,11 +74,12 @@ LifecycleServiceClient::get_state(std::chrono::seconds time_out)
     return lifecycle_msgs::msg::State::PRIMARY_STATE_UNKNOWN;
   }
   // We have an succesful answer. So let's print the current state.
-  if (future_result.get()) {
+  auto result = future_result.get();
+  if (result) { //TODO:: I am not sure if this would even work, Replace with a try and catch.
     RCLCPP_INFO(
       get_logger(), "Node %s has current state %s.",
-      get_name(), future_result.get()->current_state.label.c_str());
-    return future_result.get()->current_state.id;
+      get_name(), result->current_state.label.c_str());
+    return result->current_state.id;
   } else {
     RCLCPP_ERROR(
       get_logger(), "Failed to get current state for node %s", managed_node_.c_str());
@@ -110,7 +111,8 @@ LifecycleServiceClient::change_state(std::uint8_t transition, std::chrono::secon
     return false;
   }
   // We have an answer, let's print our success.
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     RCLCPP_INFO(
       get_logger(), "Transition %d successfully triggered.", static_cast<int>(transition));
     return true;

@@ -108,15 +108,16 @@ ProblemExpertClient::getInstances()
     return {};
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     return plansys2::convertVector<plansys2::Instance, plansys2_msgs::msg::Param>(
-      future_result.get()->instances);
+      result->instances);
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       node_->get_namespace() <<
         get_problem_instances_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -145,14 +146,15 @@ ProblemExpertClient::addInstance(const plansys2::Instance & instance)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_instance_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -181,14 +183,15 @@ ProblemExpertClient::removeInstance(const plansys2::Instance & instance)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       remove_problem_instance_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -219,13 +222,14 @@ ProblemExpertClient::getInstance(const std::string & name)
     return {};
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->instance;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->instance;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_instance_details_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -253,14 +257,15 @@ ProblemExpertClient::getPredicates()
     return {};
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     return plansys2::convertVector<plansys2::Predicate, plansys2_msgs::msg::Node>(
-      future_result.get()->states);
+      result->states);
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_predicates_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -289,14 +294,15 @@ ProblemExpertClient::addPredicate(const plansys2::Predicate & predicate)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_predicate_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -325,14 +331,15 @@ ProblemExpertClient::removePredicate(const plansys2::Predicate & predicate)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       remove_problem_predicate_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -361,7 +368,8 @@ ProblemExpertClient::existPredicate(const plansys2::Predicate & predicate)
     return false;
   }
 
-  return future_result.get()->exist;
+  auto result = future_result.get();
+  return result->exist;
 }
 
 std::optional<plansys2::Predicate>
@@ -389,13 +397,14 @@ ProblemExpertClient::getPredicate(const std::string & predicate)
     return {};
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->node;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->node;
   } else {
     RCLCPP_DEBUG_STREAM(
       node_->get_logger(),
       get_problem_predicate_details_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -423,14 +432,15 @@ ProblemExpertClient::getFunctions()
     return {};
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     return plansys2::convertVector<plansys2::Function, plansys2_msgs::msg::Node>(
-      future_result.get()->states);
+      result->states);
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_functions_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -462,14 +472,15 @@ ProblemExpertClient::addFunction(const plansys2::Function & function)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_function_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -498,14 +509,15 @@ ProblemExpertClient::removeFunction(const plansys2::Function & function)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       remove_problem_function_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -534,7 +546,8 @@ ProblemExpertClient::existFunction(const plansys2::Function & function)
     return false;
   }
 
-  return future_result.get()->exist;
+  auto result = future_result.get();
+  return result->exist;
 }
 
 bool ProblemExpertClient::updateFunction(const plansys2::Function & function)
@@ -560,14 +573,15 @@ bool ProblemExpertClient::updateFunction(const plansys2::Function & function)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       update_problem_function_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -597,13 +611,14 @@ ProblemExpertClient::getFunction(const std::string & function)
     return {};
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->node;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->node;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_function_details_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -634,13 +649,14 @@ ProblemExpertClient::getGoal()
     return ret;
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->tree;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->tree;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
   }
 
   return ret;
@@ -670,14 +686,15 @@ ProblemExpertClient::setGoal(const plansys2::Goal & goal)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -706,13 +723,14 @@ ProblemExpertClient::isGoalSatisfied(const plansys2::Goal & goal)
     return false;
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->satisfied;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->satisfied;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       is_problem_goal_satisfied_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -740,14 +758,15 @@ ProblemExpertClient::clearGoal()
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       remove_problem_goal_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -775,14 +794,15 @@ ProblemExpertClient::clearKnowledge()
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       clear_problem_knowledge_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
@@ -811,13 +831,14 @@ ProblemExpertClient::getProblem()
     return {};
   }
 
-  if (future_result.get()->success) {
-    return future_result.get()->problem;
+  auto result = future_result.get();
+  if (result->success) {
+    return result->problem;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       get_problem_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return {};
   }
 }
@@ -846,14 +867,15 @@ ProblemExpertClient::addProblem(const std::string & problem_str)
     return false;
   }
 
-  if (future_result.get()->success) {
+  auto result = future_result.get();
+  if (result->success) {
     update_time_ = node_->now();
     return true;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
       add_problem_client_->get_service_name() << ": " <<
-        future_result.get()->error_info);
+        result->error_info);
     return false;
   }
 }
