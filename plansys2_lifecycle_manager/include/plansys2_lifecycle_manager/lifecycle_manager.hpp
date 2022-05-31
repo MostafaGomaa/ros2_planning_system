@@ -60,7 +60,7 @@ public:
   unsigned int get_state(std::chrono::seconds time_out = std::chrono::seconds(3));
   bool change_state(
     std::uint8_t transition,
-    std::chrono::seconds time_out = std::chrono::seconds(3));
+    std::chrono::seconds time_out = std::chrono::seconds(5));
 
 private:
   std::shared_ptr<rclcpp::Client<lifecycle_msgs::srv::GetState>> client_get_state_;
