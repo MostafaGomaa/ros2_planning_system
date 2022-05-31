@@ -122,6 +122,11 @@ POPFPlanSolver::check_domain(
   domain_out << domain;
   domain_out.close();
 
+  // TODO:: There is a bug here, the (:domain $name) is not really adaptive to what is in the
+  // check_domain.pddl
+  //
+  // TODO:: if this line actually fails, the code which uses this in domain_expert
+  // just goes on with no issue
   std::ofstream problem_out("/tmp/" + node_namespace + "/check_problem.pddl");
   problem_out << "(define (problem void) (:domain plansys2))";
   problem_out.close();
