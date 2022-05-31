@@ -277,7 +277,14 @@ std::optional<plansys2_msgs::msg::Plan> ExecutorClient::getPlan()
 
   auto result = future_result.get();
   if (result->success) {
-    return result->plan;
+    auto plan = result->plan;
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "plan");
+    for (const auto & plan_item : plan.items) {
+      RCLCPP_ERROR_STREAM(
+        node_->get_logger(),
+        plan_item.time << ":\t" << plan_item.action << "\t[" << plan_item.duration << "]");
+    }
+    return plan;
   } else {
     RCLCPP_ERROR_STREAM(
       node_->get_logger(),
