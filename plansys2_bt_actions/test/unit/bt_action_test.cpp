@@ -25,6 +25,7 @@
 #include "../behavior_tree/OpenGripper.hpp"
 #include "../behavior_tree/CloseGripper.hpp"
 #include "../behavior_tree/Move.hpp"
+#include "../behavior_tree/FailureNodes.hpp"
 
 #include "plansys2_executor/ActionExecutor.hpp"
 
@@ -74,6 +75,7 @@ private:
   rclcpp_action::CancelResponse handle_cancel(
     const std::shared_ptr<GoalHandleFibonacci> goal_handle)
   {
+    cancelled_ = true;
     return rclcpp_action::CancelResponse::ACCEPT;
   }
 
@@ -85,11 +87,23 @@ private:
   void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
   {
     auto feedback = std::make_shared<Fibonacci::Feedback>();
-    auto result = std::make_shared<Fibonacci::Result>();
 
-    result->sequence.push_back(4);
-    goal_handle->succeed(result);
+    int counter = 0;
+    rclcpp::Rate rate(10);
+    while (rclcpp::ok() && counter++ < 50 && !cancelled_) {  // 5 secs
+      goal_handle->publish_feedback(feedback);
+      rate.sleep();
+    }
+
+    if (!cancelled_) {
+      auto result = std::make_shared<Fibonacci::Result>();
+
+      result->sequence.push_back(4);
+      goal_handle->succeed(result);
+    }
   }
+
+  bool cancelled_ {false};
 };
 
 TEST(bt_actions, load_plugins)
@@ -126,6 +140,81 @@ TEST(bt_actions, load_plugins)
     rate.sleep();
   }
 
+  t.join();
+}
+
+TEST(bt_actions, on_tick_failure)
+{
+  auto node = rclcpp::Node::make_shared("test_node");
+  auto move_server_node = std::make_shared<MoveServer>();
+  move_server_node->start_server();
+
+  bool finished = false;
+  std::thread t([&]() {
+      while (!finished) {rclcpp::spin_some(move_server_node);}
+    });
+
+
+  BT::NodeConfiguration config;
+  BT::assignDefaultRemapping<plansys2_bt_tests::OnTickFail>(config);
+  auto bb = BT::Blackboard::create();
+  bb->set("node", node);
+  config.blackboard = bb;
+
+  plansys2_bt_tests::OnTickFail failure_node("OnTickFail", "move", config);
+
+  rclcpp::Rate rate(10);
+
+  BT::NodeStatus status = BT::NodeStatus::RUNNING;
+  while (rclcpp::ok() && status == BT::NodeStatus::RUNNING) {
+    status = failure_node.tick();
+
+    rclcpp::spin_some(node);
+    rate.sleep();
+  }
+
+  ASSERT_TRUE(failure_node.on_tick_run);
+  ASSERT_EQ(status, BT::NodeStatus::FAILURE);
+
+  finished = true;
+  t.join();
+}
+
+TEST(bt_actions, on_feedback_failure)
+{
+  auto node = rclcpp::Node::make_shared("test_node");
+  auto move_server_node = std::make_shared<MoveServer>();
+  move_server_node->start_server();
+
+  bool finished = false;
+  std::thread t([&]() {
+      while (!finished) {rclcpp::spin_some(move_server_node);}
+    });
+
+  BT::NodeConfiguration config;
+  BT::assignDefaultRemapping<plansys2_bt_tests::OnFeedbackFail>(config);
+  auto bb = BT::Blackboard::create();
+  bb->set("node", node);
+  config.blackboard = bb;
+
+  plansys2_bt_tests::OnFeedbackFail failure_node("OnFeedbackFail",
+    "move",
+    config);
+
+  rclcpp::Rate rate(10);
+
+  BT::NodeStatus status = BT::NodeStatus::RUNNING;
+  while (rclcpp::ok() && status == BT::NodeStatus::RUNNING) {
+    status = failure_node.tick();
+
+    rclcpp::spin_some(node);
+    rate.sleep();
+  }
+
+  ASSERT_TRUE(failure_node.on_feedback_run);
+  ASSERT_EQ(status, BT::NodeStatus::FAILURE);
+
+  finished = true;
   t.join();
 }
 
@@ -218,7 +307,7 @@ TEST(bt_actions, cancel_bt_action)
   ASSERT_EQ(action_client->get_internal_status(), plansys2::ActionExecutor::Status::RUNNING);
   ASSERT_EQ(bt_action->get_current_state().id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
 
-  ASSERT_EQ(action_execution_msgs.size(), 4u);
+  ASSERT_EQ(action_execution_msgs.size(), 3u);
   ASSERT_EQ(action_execution_msgs[0].type, plansys2_msgs::msg::ActionExecution::REQUEST);
   ASSERT_EQ(action_execution_msgs[1].type, plansys2_msgs::msg::ActionExecution::RESPONSE);
   ASSERT_EQ(action_execution_msgs[2].type, plansys2_msgs::msg::ActionExecution::CONFIRM);
@@ -231,7 +320,7 @@ TEST(bt_actions, cancel_bt_action)
     }
   }
 
-  ASSERT_EQ(action_execution_msgs.size(), 5u);
+  ASSERT_EQ(action_execution_msgs.size(), 4u);
   action_client->cancel();
 
   {
@@ -242,10 +331,10 @@ TEST(bt_actions, cancel_bt_action)
       rate.sleep();
     }
   }
-  ASSERT_EQ(action_execution_msgs.size(), 6u);
+
+  ASSERT_EQ(action_execution_msgs.size(), 5u);
   ASSERT_EQ(action_execution_msgs[3].type, plansys2_msgs::msg::ActionExecution::FEEDBACK);
-  ASSERT_EQ(action_execution_msgs[4].type, plansys2_msgs::msg::ActionExecution::FEEDBACK);
-  ASSERT_EQ(action_execution_msgs[5].type, plansys2_msgs::msg::ActionExecution::CANCEL);
+  ASSERT_EQ(action_execution_msgs[4].type, plansys2_msgs::msg::ActionExecution::CANCEL);
 
   ASSERT_EQ(action_client->get_internal_status(), plansys2::ActionExecutor::Status::CANCELLED);
   ASSERT_EQ(
