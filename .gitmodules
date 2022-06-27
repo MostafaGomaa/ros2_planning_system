@@ -1,0 +1,3 @@
+[submodule "plansys2_tfd_plan_solver--repo"]
+	path = plansys2_tfd_plan_solver--repo
+	url = git@github.com:MostafaGomaa/plansys2_tfd_plan_solver.git
